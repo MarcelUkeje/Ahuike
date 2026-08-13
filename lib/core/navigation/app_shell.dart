@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../features/home/data/home_repository.dart';
 import '../../features/home/presentation/home_screen.dart';
-import '../../features/orders/presentation/orders_screen.dart';
+import '../../features/appointments/presentation/appointments_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../shared/widgets/basil_icon.dart';
@@ -17,9 +16,9 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _selectedIndex = 0;
   late final List<Widget> _screens = [
-    HomeScreen(repository: MockHomeRepository()),
+    const HomeScreen(),
     const SearchScreen(),
-    const OrdersScreen(),
+    const AppointmentsScreen(),
     const ProfileScreen(),
   ];
 
@@ -42,7 +41,7 @@ class _BottomNavigation extends StatelessWidget {
   static const items = [
     ('home-outline', 'home-solid', 'Home'),
     ('search-outline', 'search-solid', 'Search'),
-    ('shopping-bag-outline', 'shopping-bag-solid', 'Orders'),
+    ('calendar-outline', 'calendar-solid', 'Appointments'),
     ('user-outline', 'user-solid', 'Profile'),
   ];
 

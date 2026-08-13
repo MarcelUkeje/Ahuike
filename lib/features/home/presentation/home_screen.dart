@@ -1,29 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/providers/department_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
-import '../../../shared/models/restaurant.dart';
-import '../../../shared/widgets/restaurant_card.dart';
 import '../../../shared/widgets/app_animation.dart';
 import '../../../shared/widgets/app_progress_animation.dart';
 import '../../../shared/widgets/basil_icon.dart';
-import '../data/home_repository.dart';
+import '../../../shared/widgets/department_card.dart';
+import '../../doctors/presentation/doctor_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.repository});
-
-  final HomeRepository repository;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<Restaurant>> _restaurants;
-
   @override
   void initState() {
     super.initState();
-    _restaurants = widget.repository.getNearbyRestaurants();
+    // Load departments when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DepartmentProvider>().loadDepartments();
+    });
   }
 
   @override
@@ -31,8 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return SafeArea(
       child: RefreshIndicator(
         onRefresh: () async {
-          setState(() => _restaurants = widget.repository.getNearbyRestaurants());
-          await _restaurants;
+          await context.read<DepartmentProvider>().loadDepartments();
         },
         child: CustomScrollView(
           slivers: [
@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const CircleAvatar(
                         backgroundColor: AppColors.primaryContainer,
                         child: BasilIcon(
-                          'location-solid',
+                          'user-solid',
                           color: AppColors.primary,
                         ),
                       ),
@@ -54,8 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Deliver to', style: Theme.of(context).textTheme.bodySmall),
-                            const Text('Home • Lagos', style: TextStyle(fontWeight: FontWeight.w800)),
+                            Text('Good morning,', style: Theme.of(context).textTheme.bodySmall),
+                            const Text('Odogwu Marcel', style: TextStyle(fontWeight: FontWeight.w800)),
                           ],
                         ),
                       ),
@@ -67,15 +67,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  Text('What are you\nchowing today?', style: Theme.of(context).textTheme.headlineLarge),
+                  Text('Find your doctor\nand book an appointment', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 18),
                   TextField(
                     readOnly: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Search dishes and restaurants',
-                      prefixIcon: BasilIcon('search-outline'),
+                    decoration: InputDecoration(
+                      hintText: 'Search for doctors or departments',
+                      prefixIcon: const BasilIcon('search-outline'),
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      // Navigate to search
+                    },
                   ),
                   const SizedBox(height: 20),
                   Container(
@@ -90,36 +98,31 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Your first bite is on us', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
+                              Text('Health Checkup', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
                               const SizedBox(height: 8),
-                              const Text('Get 20% off your first NdiChow order.', style: TextStyle(color: Colors.white)),
+                              const Text('Book a comprehensive checkup with our experts.', style: TextStyle(color: Colors.white)),
                             ],
                           ),
                         ),
-                        const Text('🍛', style: TextStyle(fontSize: 54)),
+                        const Text('🩺', style: TextStyle(fontSize: 54)),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Text('Browse cuisines', style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 12),
-                  const _CuisineRow(),
                   const SizedBox(height: 26),
-                  Text('Popular near you', style: Theme.of(context).textTheme.titleLarge),
+                  Text('Specialties', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                 ],
               ),
             ),
-            FutureBuilder<List<Restaurant>>(
-              future: _restaurants,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
+            Consumer<DepartmentProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading && provider.departments.isEmpty) {
                   return const SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(child: AppProgressAnimation()),
                   );
                 }
-                if (snapshot.hasError) {
+                if (provider.errorMessage != null && provider.departments.isEmpty) {
                   return SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
@@ -131,11 +134,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 128,
                           ),
                           const SizedBox(height: 12),
+                          Text('Failed to load departments', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 12),
                           FilledButton(
-                            onPressed: () => setState(
-                              () => _restaurants =
-                                  widget.repository.getNearbyRestaurants(),
-                            ),
+                            onPressed: () => provider.loadDepartments(),
                             child: const Text('Try again'),
                           ),
                         ],
@@ -143,43 +145,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }
+                
                 return SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
                   sliver: SliverList.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (_, index) => RestaurantCard(restaurant: snapshot.data![index]),
+                    itemCount: provider.departments.length,
+                    itemBuilder: (_, index) {
+                      final dept = provider.departments[index];
+                      return DepartmentCard(
+                        department: dept,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => DoctorListScreen(department: dept),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                 );
               },
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _CuisineRow extends StatelessWidget {
-  const _CuisineRow();
-
-  @override
-  Widget build(BuildContext context) {
-    const cuisines = [('🍚', 'Rice'), ('🍗', 'Chicken'), ('🍔', 'Fast food'), ('🥣', 'Soups')];
-    return SizedBox(
-      height: 84,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: cuisines.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (_, index) {
-          final item = cuisines[index];
-          return Container(
-            width: 76,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-            child: Column(children: [Text(item.$1, style: const TextStyle(fontSize: 28)), const Spacer(), Text(item.$2, overflow: TextOverflow.ellipsis)]),
-          );
-        },
       ),
     );
   }

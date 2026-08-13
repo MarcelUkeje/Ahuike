@@ -1,28 +1,56 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ndichow/main.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ahuike/core/network/api_client.dart';
+import 'package:ahuike/core/providers/auth_provider.dart';
+import 'package:ahuike/shared/models/patient.dart';
+import 'package:ahuike/shared/repositories/auth_repository.dart';
+import 'package:ahuike/features/auth/presentation/login_screen.dart';
 
 void main() {
-  testWidgets('renders the main food discovery shell', (tester) async {
-    await tester.pumpWidget(const NdiChowApp());
-    await tester.pump(const Duration(milliseconds: 300));
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    expect(find.text('What are you\nchowing today?'), findsOneWidget);
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Search'), findsOneWidget);
-    expect(find.text('Orders'), findsOneWidget);
-    expect(find.text('Profile'), findsOneWidget);
+  testWidgets('renders Ahuike LoginScreen when unauthenticated', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final apiClient = ApiClient();
+    
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider<ApiClient>.value(value: apiClient),
+          ChangeNotifierProvider<AuthProvider>(
+            create: (_) => AuthProvider(
+              authRepository: FakeAuthRepository(),
+              apiClient: apiClient,
+            ),
+          ),
+        ],
+        child: const MaterialApp(
+          home: LoginScreen(),
+        ),
+      ),
+    );
+
+    expect(find.text('Ahuike Hospital'), findsOneWidget);
+    expect(find.text('Sign In'), findsOneWidget);
+    expect(find.text('Register'), findsOneWidget);
   });
+}
 
-  testWidgets('switches between the main destinations', (tester) async {
-    await tester.pumpWidget(const NdiChowApp());
-    await tester.pump(const Duration(milliseconds: 300));
+class FakeAuthRepository implements AuthRepository {
+  @override
+  Future<AuthResult> login({required String email, required String password}) async {
+    throw UnimplementedError();
+  }
 
-    await tester.tap(find.text('Orders'));
-    await tester.pumpAndSettle();
-    expect(find.text('Your orders'), findsOneWidget);
+  @override
+  Future<AuthResult> register({required String name, required String email, required String password}) async {
+    throw UnimplementedError();
+  }
 
-    await tester.tap(find.text('Profile'));
-    await tester.pumpAndSettle();
-    expect(find.text('Basil icons by Craftwork • CC BY 4.0'), findsOneWidget);
-  });
+  @override
+  Future<Patient> getProfile() async {
+    throw UnimplementedError();
+  }
 }
