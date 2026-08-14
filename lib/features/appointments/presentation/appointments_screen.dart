@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/providers/appointment_provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/widgets/app_progress_animation.dart';
 import '../../../shared/widgets/app_animation.dart';
+import '../../../shared/widgets/app_progress_animation.dart';
 import '../../../shared/widgets/appointment_card.dart';
 
 class AppointmentsScreen extends StatefulWidget {
@@ -15,12 +15,29 @@ class AppointmentsScreen extends StatefulWidget {
 }
 
 class _AppointmentsScreenState extends State<AppointmentsScreen> {
+  final _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppointmentProvider>().loadAppointments();
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<AppointmentProvider>().loadMore();
+    }
   }
 
   @override
@@ -38,7 +55,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           if (provider.isLoading && provider.appointments.isEmpty) {
             return const Center(child: AppProgressAnimation());
           }
-          
+
           if (provider.errorMessage != null && provider.appointments.isEmpty) {
             return Center(
               child: Column(
@@ -56,7 +73,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               ),
             );
           }
-          
+
           if (provider.appointments.isEmpty) {
             return Center(
               child: Column(
@@ -73,15 +90,23 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             );
           }
 
+          // Extra slot for load-more spinner
+          final itemCount = provider.appointments.length + (provider.hasMore ? 1 : 0);
+
           return RefreshIndicator(
             onRefresh: () => provider.loadAppointments(),
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.all(20),
-              itemCount: provider.appointments.length,
+              itemCount: itemCount,
               itemBuilder: (context, index) {
-                return AppointmentCard(
-                  appointment: provider.appointments[index],
-                );
+                if (index == provider.appointments.length) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                return AppointmentCard(appointment: provider.appointments[index]);
               },
             ),
           );

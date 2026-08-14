@@ -43,13 +43,9 @@ class RemoteAuthRepository implements AuthRepository {
   }) async {
     final response = await apiClient.post(
       '/auth/register',
-      body: {
-        'name': name,
-        'email': email,
-        'password': password,
-      },
+      body: {'name': name, 'email': email, 'password': password},
     );
-    return AuthResult.fromJson(response as Map<String, dynamic>);
+    return AuthResult.fromJson(response.data as Map<String, dynamic>);
   }
 
   @override
@@ -59,17 +55,14 @@ class RemoteAuthRepository implements AuthRepository {
   }) async {
     final response = await apiClient.post(
       '/auth/login',
-      body: {
-        'email': email,
-        'password': password,
-      },
+      body: {'email': email, 'password': password},
     );
-    return AuthResult.fromJson(response as Map<String, dynamic>);
+    return AuthResult.fromJson(response.data as Map<String, dynamic>);
   }
 
   @override
   Future<Patient> getProfile() async {
     final response = await apiClient.get('/patients/me');
-    return Patient.fromJson(response as Map<String, dynamic>);
+    return Patient.fromJson(response.data as Map<String, dynamic>);
   }
 }

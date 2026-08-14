@@ -5,10 +5,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Raw response envelope from the API, including both data and optional meta.
+class ApiResponse {
+  final dynamic data;
+  final Map<String, dynamic>? meta;
+  const ApiResponse({required this.data, this.meta});
+}
+
 class ApiClient {
   static const String _authTokenKey = 'ahuike_auth_token';
 
-  /// Reads base URL from .env `API_BASE_URL` with sensible device-type fallbacks.
   static String get baseUrl {
     final envUrl = dotenv.env['API_BASE_URL'];
     if (envUrl != null && envUrl.isNotEmpty) return envUrl;
@@ -21,7 +27,6 @@ class ApiClient {
 
   ApiClient({String? token}) : _token = token;
 
-  /// Set the active auth token in memory & storage
   Future<void> setAuthToken(String? token) async {
     _token = token;
     final prefs = await SharedPreferences.getInstance();
@@ -32,7 +37,6 @@ class ApiClient {
     }
   }
 
-  /// Initialize token from persistent storage
   Future<String?> loadSavedToken() async {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString(_authTokenKey);
@@ -51,17 +55,15 @@ class ApiClient {
     if (_token != null && _token!.isNotEmpty) {
       map['Authorization'] = 'Bearer $_token';
     } else {
-      // Fallback for dev / unauthenticated calls
       map['x-patient-id'] = dotenv.env['PATIENT_ID'] ?? 'test-patient-001';
     }
     return map;
   }
 
-  Future<dynamic> get(String endpoint,
-      {Map<String, String>? queryParameters}) async {
+  /// Returns raw ApiResponse with both data and meta.
+  Future<ApiResponse> get(String endpoint, {Map<String, String>? queryParameters}) async {
     try {
-      final uri = Uri.parse('$baseUrl$endpoint')
-          .replace(queryParameters: queryParameters);
+      final uri = Uri.parse('$baseUrl$endpoint').replace(queryParameters: queryParameters);
       debugPrint('GET: $uri');
       final response = await _client.get(uri, headers: _headers);
       return _handleResponse(response);
@@ -70,26 +72,23 @@ class ApiClient {
     }
   }
 
-  Future<dynamic> post(String endpoint,
-      {required Map<String, dynamic> body}) async {
+  /// Returns raw ApiResponse — callers extract .data or .meta as needed.
+  Future<ApiResponse> post(String endpoint, {required Map<String, dynamic> body}) async {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
       debugPrint('POST: $uri');
-      final response = await _client.post(
-        uri,
-        headers: _headers,
-        body: jsonEncode(body),
-      );
+      final response = await _client.post(uri, headers: _headers, body: jsonEncode(body));
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Network error: $e');
     }
   }
 
-  dynamic _handleResponse(http.Response response) {
+  ApiResponse _handleResponse(http.Response response) {
     final dynamic decoded = jsonDecode(response.body);
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      return decoded['data'] ?? decoded;
+      final meta = decoded['meta'] as Map<String, dynamic>?;
+      return ApiResponse(data: decoded['data'] ?? decoded, meta: meta);
     }
     final message = decoded['error']?['message'] ?? 'Unknown API Error';
     throw Exception(message);

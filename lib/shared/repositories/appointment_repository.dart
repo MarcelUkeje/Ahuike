@@ -1,22 +1,36 @@
 import '../../core/network/api_client.dart';
 import '../models/appointment.dart';
+import '../models/page_meta.dart';
 
 class AppointmentRepository {
   final ApiClient _apiClient;
 
   AppointmentRepository(this._apiClient);
 
-  Future<List<Appointment>> getAppointments() async {
-    // The patient ID is automatically injected by the ApiClient headers
-    final response = await _apiClient.get('/appointments');
-    
-    final List<dynamic> list = response as List<dynamic>;
-    return list.map((json) => Appointment.fromJson(json)).toList();
+  Future<PagedResponse<Appointment>> getAppointments({
+    String? status,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final params = <String, String>{
+      'limit': '$limit',
+      'offset': '$offset',
+    };
+    if (status != null && status.isNotEmpty) params['status'] = status;
+
+    final response = await _apiClient.get('/appointments', queryParameters: params);
+    final list = (response.data as List<dynamic>)
+        .map((json) => Appointment.fromJson(json as Map<String, dynamic>))
+        .toList();
+    final meta = response.meta != null
+        ? PageMeta.fromJson(response.meta!)
+        : PageMeta.empty;
+    return PagedResponse(items: list, meta: meta);
   }
 
   Future<Appointment> getAppointmentById(String id) async {
     final response = await _apiClient.get('/appointments/$id');
-    return Appointment.fromJson(response as Map<String, dynamic>);
+    return Appointment.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<Appointment> createAppointment({
@@ -31,7 +45,6 @@ class AppointmentRepository {
       'slotId': slotId,
       'reasonForVisit': reasonForVisit,
     });
-    
-    return Appointment.fromJson(response as Map<String, dynamic>);
+    return Appointment.fromJson(response.data as Map<String, dynamic>);
   }
 }

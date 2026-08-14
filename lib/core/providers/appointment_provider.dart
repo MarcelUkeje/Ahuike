@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../../shared/models/appointment.dart';
+import '../../shared/models/page_meta.dart';
 import '../../shared/repositories/appointment_repository.dart';
 
 class AppointmentProvider extends ChangeNotifier {
@@ -7,11 +8,20 @@ class AppointmentProvider extends ChangeNotifier {
 
   AppointmentProvider(this._repository);
 
+  static const int _pageSize = 20;
+
   List<Appointment> _appointments = [];
   List<Appointment> get appointments => _appointments;
 
+  PageMeta _meta = PageMeta.empty;
+  PageMeta get meta => _meta;
+  bool get hasMore => _meta.hasMore;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  bool _isLoadingMore = false;
+  bool get isLoadingMore => _isLoadingMore;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -22,17 +32,47 @@ class AppointmentProvider extends ChangeNotifier {
   String? _bookingError;
   String? get bookingError => _bookingError;
 
-  Future<void> loadAppointments() async {
+  /// Initial load / refresh — resets to page 0.
+  Future<void> loadAppointments({String? status}) async {
     _isLoading = true;
     _errorMessage = null;
+    _appointments = [];
     notifyListeners();
 
     try {
-      _appointments = await _repository.getAppointments();
+      final result = await _repository.getAppointments(
+        status: status,
+        limit: _pageSize,
+        offset: 0,
+      );
+      _appointments = result.items;
+      _meta = result.meta;
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Appends the next page of results.
+  Future<void> loadMore({String? status}) async {
+    if (_isLoadingMore || !_meta.hasMore) return;
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final result = await _repository.getAppointments(
+        status: status,
+        limit: _pageSize,
+        offset: _appointments.length,
+      );
+      _appointments = [..._appointments, ...result.items];
+      _meta = result.meta;
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoadingMore = false;
       notifyListeners();
     }
   }
@@ -54,12 +94,17 @@ class AppointmentProvider extends ChangeNotifier {
         slotId: slotId,
         reasonForVisit: reasonForVisit,
       );
-      
-      // Add the new appointment to the top of our local history list
-      _appointments.insert(0, newAppointment);
+      // Prepend to local list and update total count
+      _appointments = [newAppointment, ..._appointments];
+      _meta = PageMeta(
+        total: _meta.total + 1,
+        limit: _meta.limit,
+        offset: _meta.offset,
+        hasMore: _meta.hasMore,
+      );
       return newAppointment;
     } catch (e) {
-      _bookingError = e.toString();
+      _bookingError = e.toString().replaceAll('Exception: ', '');
       return null;
     } finally {
       _isBooking = false;
