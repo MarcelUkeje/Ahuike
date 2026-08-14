@@ -7,6 +7,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../shared/widgets/basil_icon.dart';
 import '../../appointments/presentation/appointments_screen.dart';
+import '../../records/presentation/medical_records_screen.dart';
+import '../../records/presentation/prescriptions_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -106,8 +108,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (_) => const AppointmentsScreen()),
             ),
           ),
-          const _ProfileTile(icon: 'document-outline', iconColor: AppColors.secondary, title: 'Medical Records', badge: 'Coming soon'),
-          const _ProfileTile(icon: 'cross-outline', iconColor: AppColors.warning, title: 'Prescription History', badge: 'Coming soon'),
+          _ProfileTile(
+            icon: 'document-outline',
+            iconColor: AppColors.secondary,
+            title: 'Medical Records',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const MedicalRecordsScreen()),
+            ),
+          ),
+          _ProfileTile(
+            icon: 'cross-outline',
+            iconColor: AppColors.warning,
+            title: 'Prescription History',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const PrescriptionsScreen()),
+            ),
+          ),
           const SizedBox(height: 20),
 
           // ── Account section ───────────────────────────────────────
@@ -189,14 +205,12 @@ class _ProfileTile extends StatelessWidget {
   final String icon;
   final Color iconColor;
   final String title;
-  final String? badge;
   final VoidCallback? onTap;
 
   const _ProfileTile({
     required this.icon,
     required this.iconColor,
     required this.title,
-    this.badge,
     this.onTap,
   });
 
@@ -215,16 +229,7 @@ class _ProfileTile extends StatelessWidget {
           child: Center(child: BasilIcon(icon, color: iconColor, size: 22)),
         ),
         title: Text(title, style: TextStyle(color: iconColor == AppColors.error ? AppColors.error : null, fontWeight: iconColor == AppColors.error ? FontWeight.bold : null)),
-        trailing: badge != null
-            ? Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.outline,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(badge!, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
-              )
-            : BasilIcon('arrow-right-outline', color: iconColor == AppColors.error ? AppColors.error : AppColors.textSecondary),
+        trailing: BasilIcon('arrow-right-outline', color: iconColor == AppColors.error ? AppColors.error : AppColors.textSecondary),
         onTap: onTap,
       ),
     );

@@ -9,6 +9,8 @@ import 'core/providers/appointment_provider.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/department_provider.dart';
 import 'core/providers/doctor_provider.dart';
+import 'core/providers/medical_record_provider.dart';
+import 'core/providers/prescription_provider.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/login_screen.dart';
@@ -16,6 +18,8 @@ import 'shared/repositories/appointment_repository.dart';
 import 'shared/repositories/auth_repository.dart';
 import 'shared/repositories/department_repository.dart';
 import 'shared/repositories/doctor_repository.dart';
+import 'shared/repositories/medical_record_repository.dart';
+import 'shared/repositories/prescription_repository.dart';
 import 'shared/widgets/basil_icon.dart';
 
 Future<void> main() async {
@@ -47,6 +51,12 @@ Future<void> main() async {
         ProxyProvider<ApiClient, AppointmentRepository>(
           update: (_, api, __) => AppointmentRepository(api),
         ),
+        ProxyProvider<ApiClient, MedicalRecordRepository>(
+          update: (_, api, __) => MedicalRecordRepository(api),
+        ),
+        ProxyProvider<ApiClient, PrescriptionRepository>(
+          update: (_, api, __) => PrescriptionRepository(api),
+        ),
 
         // 3. Auth State Provider
         ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
@@ -70,6 +80,14 @@ Future<void> main() async {
         ChangeNotifierProxyProvider<AppointmentRepository, AppointmentProvider>(
           create: (_) => AppointmentProvider(AppointmentRepository(apiClient)),
           update: (_, repo, prev) => prev ?? AppointmentProvider(repo),
+        ),
+        ChangeNotifierProxyProvider<MedicalRecordRepository, MedicalRecordProvider>(
+          create: (_) => MedicalRecordProvider(MedicalRecordRepository(apiClient)),
+          update: (_, repo, prev) => prev ?? MedicalRecordProvider(repo),
+        ),
+        ChangeNotifierProxyProvider<PrescriptionRepository, PrescriptionProvider>(
+          create: (_) => PrescriptionProvider(PrescriptionRepository(apiClient)),
+          update: (_, repo, prev) => prev ?? PrescriptionProvider(repo),
         ),
       ],
       child: const AhuikeApp(),
