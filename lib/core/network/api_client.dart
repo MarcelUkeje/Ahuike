@@ -68,6 +68,9 @@ class ApiClient {
       final response = await _client.get(uri, headers: _headers);
       return _handleResponse(response);
     } catch (e) {
+      if (e is SocketException || e.toString().contains('ClientException') || e.toString().contains('SocketException')) {
+        throw Exception('Unable to connect to the server. Please check your internet connection and try again.');
+      }
       throw Exception('Network error: $e');
     }
   }
@@ -80,6 +83,9 @@ class ApiClient {
       final response = await _client.post(uri, headers: _headers, body: jsonEncode(body));
       return _handleResponse(response);
     } catch (e) {
+      if (e is SocketException || e.toString().contains('ClientException') || e.toString().contains('SocketException')) {
+        throw Exception('Unable to connect to the server. Please check your internet connection and try again.');
+      }
       throw Exception('Network error: $e');
     }
   }
