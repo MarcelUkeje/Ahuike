@@ -18,7 +18,7 @@ val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toI
 val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    namespace = "com.thetruesammyjay.ndichow"
+    namespace = "com.thetruesammyjay.ahuike"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -41,7 +41,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.thetruesammyjay.ndichow"
+        applicationId = "com.thetruesammyjay.ahuike"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

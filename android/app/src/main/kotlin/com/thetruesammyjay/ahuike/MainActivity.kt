@@ -1,4 +1,4 @@
-package com.thetruesammyjay.ndichow
+package com.thetruesammyjay.ahuike
 
 import io.flutter.embedding.android.FlutterActivity
 
