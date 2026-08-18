@@ -76,11 +76,12 @@ class ApiClient {
   }
 
   /// Returns raw ApiResponse — callers extract .data or .meta as needed.
-  Future<ApiResponse> post(String endpoint, {required Map<String, dynamic> body}) async {
+  Future<ApiResponse> post(String endpoint, {required Map<String, dynamic> body, Map<String, String>? headers}) async {
     try {
       final uri = Uri.parse('$baseUrl$endpoint');
       debugPrint('POST: $uri');
-      final response = await _client.post(uri, headers: _headers, body: jsonEncode(body));
+      final mergedHeaders = {..._headers, if (headers != null) ...headers};
+      final response = await _client.post(uri, headers: mergedHeaders, body: jsonEncode(body));
       return _handleResponse(response);
     } catch (e) {
       if (e is SocketException || e.toString().contains('ClientException') || e.toString().contains('SocketException')) {

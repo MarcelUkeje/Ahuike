@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/department_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
@@ -18,6 +19,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning,';
+    if (hour < 17) return 'Good afternoon,';
+    return 'Good evening,';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final patient = context.watch<AuthProvider>().patient;
+    final patientName = patient?.name ?? 'Guest';
+    final firstName = patientName.split(' ').first;
+
     return SafeArea(
       child: RefreshIndicator(
         onRefresh: () async {
@@ -54,8 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Good morning,', style: Theme.of(context).textTheme.bodySmall),
-                            const Text('Odogwu Marcel', style: TextStyle(fontWeight: FontWeight.w800)),
+                            Text(_getGreeting(), style: Theme.of(context).textTheme.bodySmall),
+                            Text(firstName, style: const TextStyle(fontWeight: FontWeight.w800)),
                           ],
                         ),
                       ),
@@ -68,23 +80,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 24),
                   Text('Find your doctor\nand book an appointment', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 18),
-                  TextField(
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: 'Search for doctors or departments',
-                      prefixIcon: const BasilIcon('search-outline'),
-                      filled: true,
-                      fillColor: AppColors.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    onTap: () {
-                      // Navigate to search
-                    },
-                  ),
                   const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.all(20),

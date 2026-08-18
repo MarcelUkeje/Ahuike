@@ -5,6 +5,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../shared/widgets/basil_icon.dart';
+import '../../admin/presentation/admin_login_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -67,22 +68,29 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // ── Hospital Brand / Header ─────────────────────────
                 Center(
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.25),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: BasilIcon('heartbeat-solid', size: 38, color: Colors.white),
+                  child: GestureDetector(
+                    onLongPress: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+                      );
+                    },
+                    child: Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.25),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: const Center(
+                        child: BasilIcon('heartbeat-solid', size: 38, color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
