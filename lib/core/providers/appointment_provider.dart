@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../../shared/models/appointment.dart';
 import '../../shared/models/page_meta.dart';
 import '../../shared/repositories/appointment_repository.dart';
+import '../network/api_client.dart';
 
 class AppointmentProvider extends ChangeNotifier {
   final AppointmentRepository _repository;
@@ -109,6 +110,45 @@ class AppointmentProvider extends ChangeNotifier {
     } finally {
       _isBooking = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> confirmAppointment(String appointmentId) async {
+    try {
+      await _repository.confirmAppointment(appointmentId);
+      
+      final index = _appointments.indexWhere((a) => a.id == appointmentId);
+      if (index != -1) {
+        final current = _appointments[index];
+        _appointments[index] = Appointment(
+          id: current.id,
+          patientId: current.patientId,
+          doctorId: current.doctorId,
+          departmentId: current.departmentId,
+          slotId: current.slotId,
+          reasonForVisit: current.reasonForVisit,
+          consultationFee: current.consultationFee,
+          status: 'confirmed',
+          notes: current.notes,
+          createdAt: current.createdAt,
+          updatedAt: DateTime.now().toUtc().toIso8601String(),
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Failed to confirm appointment locally: $e");
+    }
+  }
+
+  Future<void> deleteAppointment(String appointmentId) async {
+    try {
+      await _repository.deleteAppointment(appointmentId);
+      
+      _appointments.removeWhere((a) => a.id == appointmentId);
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Failed to delete appointment: $e");
+      rethrow;
     }
   }
 }

@@ -60,12 +60,15 @@ Future<void> main() async {
 
         // 3. Auth State Provider
         ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
-          create: (ctx) => AuthProvider(
-            authRepository: RemoteAuthRepository(apiClient: apiClient),
-            apiClient: apiClient,
-          )..checkAuthStatus(),
-          update: (_, repo, prev) =>
-              prev ?? AuthProvider(authRepository: repo, apiClient: apiClient),
+          create:
+              (ctx) => AuthProvider(
+                authRepository: RemoteAuthRepository(apiClient: apiClient),
+                apiClient: apiClient,
+              )..checkAuthStatus(),
+          update:
+              (_, repo, prev) =>
+                  prev ??
+                  AuthProvider(authRepository: repo, apiClient: apiClient),
         ),
 
         // 4. Feature Domain Providers
@@ -81,12 +84,20 @@ Future<void> main() async {
           create: (_) => AppointmentProvider(AppointmentRepository(apiClient)),
           update: (_, repo, prev) => prev ?? AppointmentProvider(repo),
         ),
-        ChangeNotifierProxyProvider<MedicalRecordRepository, MedicalRecordProvider>(
-          create: (_) => MedicalRecordProvider(MedicalRecordRepository(apiClient)),
+        ChangeNotifierProxyProvider<
+          MedicalRecordRepository,
+          MedicalRecordProvider
+        >(
+          create:
+              (_) => MedicalRecordProvider(MedicalRecordRepository(apiClient)),
           update: (_, repo, prev) => prev ?? MedicalRecordProvider(repo),
         ),
-        ChangeNotifierProxyProvider<PrescriptionRepository, PrescriptionProvider>(
-          create: (_) => PrescriptionProvider(PrescriptionRepository(apiClient)),
+        ChangeNotifierProxyProvider<
+          PrescriptionRepository,
+          PrescriptionProvider
+        >(
+          create:
+              (_) => PrescriptionProvider(PrescriptionRepository(apiClient)),
           update: (_, repo, prev) => prev ?? PrescriptionProvider(repo),
         ),
       ],
@@ -124,7 +135,11 @@ class AuthGate extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    BasilIcon('heartbeat-solid', size: 64, color: AppColors.primary),
+                    BasilIcon(
+                      'heartbeat-solid',
+                      size: 64,
+                      color: AppColors.primary,
+                    ),
                     SizedBox(height: 24),
                     CircularProgressIndicator(),
                   ],

@@ -71,7 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: GestureDetector(
                     onLongPress: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const AdminLoginScreen(),
+                        ),
                       );
                     },
                     child: Container(
@@ -89,7 +91,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                       child: const Center(
-                        child: BasilIcon('heartbeat-solid', size: 38, color: Colors.white),
+                        child: BasilIcon(
+                          'heartbeat-solid',
+                          size: 38,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -99,26 +105,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   'Ahuike Hospital',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   'Welcome back! Sign in to manage your appointments and health records.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 36),
 
                 // ── Email Input ───────────────────────────────────────
                 Text(
                   'Email Address',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -130,10 +136,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: 'e.g. ada@ahuike.org',
                     prefixIcon: const Padding(
                       padding: EdgeInsets.all(12),
-                      child: BasilIcon('user-solid', color: AppColors.textSecondary, size: 20),
+                      child: BasilIcon(
+                        'user-solid',
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusMedium,
+                      ),
                     ),
                   ),
                   validator: (value) {
@@ -151,9 +163,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 // ── Password Input ────────────────────────────────────
                 Text(
                   'Password',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -165,7 +177,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: '••••••••',
                     prefixIcon: const Padding(
                       padding: EdgeInsets.all(12),
-                      child: BasilIcon('eye-closed-solid', color: AppColors.textSecondary, size: 20),
+                      child: BasilIcon(
+                        'eye-closed-solid',
+                        color: AppColors.textSecondary,
+                        size: 20,
+                      ),
                     ),
                     suffixIcon: IconButton(
                       icon: BasilIcon(
@@ -180,7 +196,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusMedium,
+                      ),
                     ),
                   ),
                   validator: (value) {
@@ -201,19 +219,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusMedium,
+                        ),
                       ),
                     ),
-                    child: isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                          )
-                        : const Text(
-                            'Sign In',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+                    child:
+                        isLoading
+                            ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                            : const Text(
+                              'Sign In',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -225,21 +252,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       "Don't have an account? ",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterScreen(),
+                          ),
                         );
                       },
                       child: Text(
                         'Register',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],

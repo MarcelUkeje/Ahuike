@@ -66,8 +66,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_getGreeting(), style: Theme.of(context).textTheme.bodySmall),
-                            Text(firstName, style: const TextStyle(fontWeight: FontWeight.w800)),
+                            Text(
+                              _getGreeting(),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Text(
+                              firstName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -79,13 +87,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  Text('Find your doctor\nand book an appointment', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Find your doctor\nand book an appointment',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusLarge,
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -93,9 +108,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Health Checkup', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                              Text(
+                                'Health Checkup',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const SizedBox(height: 8),
-                              const Text('Book a comprehensive checkup with our experts.', style: TextStyle(color: Colors.white)),
+                              const Text(
+                                'Book a comprehensive checkup with our experts.',
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ],
                           ),
                         ),
@@ -104,7 +130,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 26),
-                  Text('Specialties', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Specialties',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 12),
                 ],
               ),
@@ -117,7 +148,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(child: AppProgressAnimation()),
                   );
                 }
-                if (provider.errorMessage != null && provider.departments.isEmpty) {
+                if (provider.errorMessage != null &&
+                    provider.departments.isEmpty) {
                   return SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
@@ -129,7 +161,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 128,
                           ),
                           const SizedBox(height: 12),
-                          Text('Failed to load departments', style: Theme.of(context).textTheme.titleMedium),
+                          Text(
+                            'Failed to load departments',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           const SizedBox(height: 12),
                           FilledButton(
                             onPressed: () => provider.loadDepartments(),
@@ -140,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }
-                
+
                 return SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
                   sliver: SliverList.builder(
@@ -152,7 +187,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => DoctorListScreen(department: dept),
+                              builder:
+                                  (_) => DoctorListScreen(department: dept),
                             ),
                           );
                         },

@@ -47,4 +47,12 @@ class AppointmentRepository {
     });
     return Appointment.fromJson(response.data as Map<String, dynamic>);
   }
+
+  Future<void> confirmAppointment(String id) async {
+    await _apiClient.post('/appointments/$id/confirm', body: {});
+  }
+
+  Future<void> deleteAppointment(String id) async {
+    await _apiClient.delete('/appointments/$id');
+  }
 }

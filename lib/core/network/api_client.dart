@@ -65,7 +65,9 @@ class ApiClient {
     try {
       final uri = Uri.parse('$baseUrl$endpoint').replace(queryParameters: queryParameters);
       debugPrint('GET: $uri');
-      final response = await _client.get(uri, headers: _headers);
+      final mergedHeaders = {..._headers};
+      mergedHeaders.remove('Content-Type');
+      final response = await _client.get(uri, headers: mergedHeaders);
       return _handleResponse(response);
     } catch (e) {
       if (e is SocketException || e.toString().contains('ClientException') || e.toString().contains('SocketException')) {
@@ -91,13 +93,46 @@ class ApiClient {
     }
   }
 
+  /// Returns raw ApiResponse — callers extract .data or .meta as needed.
+  Future<ApiResponse> delete(String endpoint, {Map<String, String>? headers}) async {
+    try {
+      final uri = Uri.parse('$baseUrl$endpoint');
+      debugPrint('DELETE: $uri');
+      final mergedHeaders = {..._headers, if (headers != null) ...headers};
+      mergedHeaders.remove('Content-Type'); // Fastify crashes if Content-Type is json but body is empty
+      final response = await _client.delete(uri, headers: mergedHeaders);
+      
+      // Fastify returns 204 No Content for successful deletes usually, 
+      // which has no body to jsonDecode.
+      if (response.statusCode == 204) {
+        return const ApiResponse(data: null);
+      }
+      return _handleResponse(response);
+    } catch (e) {
+      if (e is SocketException || e.toString().contains('ClientException') || e.toString().contains('SocketException')) {
+        throw Exception('Unable to connect to the server. Please check your internet connection and try again.');
+      }
+      throw Exception('Network error: $e');
+    }
+  }
+
   ApiResponse _handleResponse(http.Response response) {
     final dynamic decoded = jsonDecode(response.body);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final meta = decoded['meta'] as Map<String, dynamic>?;
       return ApiResponse(data: decoded['data'] ?? decoded, meta: meta);
     }
-    final message = decoded['error']?['message'] ?? 'Unknown API Error';
+    
+    String message = 'Unknown API Error';
+    if (decoded is Map) {
+      if (decoded['message'] != null) {
+        message = decoded['message'].toString();
+      } else if (decoded['error'] is Map && decoded['error']['message'] != null) {
+        message = decoded['error']['message'].toString();
+      } else if (decoded['error'] != null) {
+        message = decoded['error'].toString();
+      }
+    }
     throw Exception(message);
   }
 }

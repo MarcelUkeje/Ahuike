@@ -97,7 +97,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             onRefresh: () => provider.loadAppointments(),
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
               itemCount: itemCount,
               itemBuilder: (context, index) {
                 if (index == provider.appointments.length) {
