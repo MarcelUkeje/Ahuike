@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import '../../shared/models/appointment.dart';
 import '../../shared/models/page_meta.dart';
 import '../../shared/repositories/appointment_repository.dart';
-import '../network/api_client.dart';
 
 class AppointmentProvider extends ChangeNotifier {
   final AppointmentRepository _repository;

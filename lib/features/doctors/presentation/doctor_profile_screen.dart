@@ -420,8 +420,9 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
       bottomSheet: Consumer<DoctorProvider>(
         builder: (context, provider, child) {
           final doctor = provider.selectedDoctor;
-          if (doctor == null || _selectedSlotId == null)
+          if (doctor == null || _selectedSlotId == null) {
             return const SizedBox.shrink();
+          }
 
           return Container(
             padding: const EdgeInsets.all(20),
