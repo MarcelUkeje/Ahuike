@@ -236,8 +236,8 @@ class _DoctorResultTile extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: AppColors.primaryContainer,
-          backgroundImage: doctor.imageUrl != null ? NetworkImage(doctor.imageUrl!) : null,
-          child: doctor.imageUrl == null
+          backgroundImage: doctor.imageProvider,
+          child: doctor.imageProvider == null
               ? const BasilIcon('user-solid', color: AppColors.primary)
               : null,
         ),

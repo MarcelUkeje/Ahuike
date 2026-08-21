@@ -11,6 +11,7 @@ import '../../../shared/widgets/app_animation.dart';
 import '../../../shared/widgets/basil_icon.dart';
 import '../../../core/network/paystack_service.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../shared/models/doctor.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
@@ -115,8 +116,9 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         final authProvider = context.read<AuthProvider>();
         final email = authProvider.patient?.email ?? 'patient@ahuike.org';
         final uniqueRef = '${appointment.id}_${DateTime.now().millisecondsSinceEpoch}';
+        final paystackService = context.read<PaystackService>();
         
-        final paystackData = await PaystackService.initializePayment(
+        final paystackData = await paystackService.initializePayment(
           email: email,
           amountInKobo: appointment.consultationFee * 100, // Naira to Kobo
           reference: uniqueRef,
@@ -151,7 +153,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         for (int i = 0; i < 60; i++) {
           await Future.delayed(const Duration(seconds: 5));
           if (!mounted) break;
-          isSuccess = await PaystackService.verifyPayment(uniqueRef);
+          isSuccess = await paystackService.verifyPayment(uniqueRef);
           if (isSuccess) break;
         }
 
@@ -246,12 +248,8 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                       CircleAvatar(
                         radius: 50,
                         backgroundColor: AppColors.primaryContainer,
-                        backgroundImage:
-                            doctor.imageUrl != null
-                                ? NetworkImage(doctor.imageUrl!)
-                                : null,
-                        child:
-                            doctor.imageUrl == null
+                        backgroundImage: doctor.imageProvider,
+                        child: doctor.imageProvider == null
                                 ? const BasilIcon(
                                   'user-solid',
                                   color: AppColors.primary,

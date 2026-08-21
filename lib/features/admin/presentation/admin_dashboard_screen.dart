@@ -20,6 +20,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final _bioController = TextEditingController();
   final _qualificationsController = TextEditingController();
   final _feeController = TextEditingController();
+  final _imageController = TextEditingController();
   
   String? _selectedDepartmentId;
   bool _isLoading = false;
@@ -39,6 +40,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     _bioController.dispose();
     _qualificationsController.dispose();
     _feeController.dispose();
+    _imageController.dispose();
     super.dispose();
   }
 
@@ -68,6 +70,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         'bio': _bioController.text.trim(),
         'qualifications': qualifications,
         'consultationFee': fee,
+        'imageUrl': _imageController.text.trim().isNotEmpty ? _imageController.text.trim() : null,
       };
 
       final apiClient = ApiClient();
@@ -86,6 +89,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       _bioController.clear();
       _qualificationsController.clear();
       _feeController.clear();
+      _imageController.clear();
       setState(() => _selectedDepartmentId = null);
       
     } catch (e) {
@@ -176,6 +180,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     if (int.tryParse(v) == null) return 'Must be a valid number';
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+                
+                // Image URL / Path
+                TextFormField(
+                  controller: _imageController,
+                  decoration: const InputDecoration(
+                    labelText: 'Doctor Photo Asset Path (Optional)', 
+                    hintText: 'e.g. assets/images/my_doctor.png', 
+                    border: OutlineInputBorder()
+                  ),
                 ),
                 const SizedBox(height: 32),
                 

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'core/navigation/app_shell.dart';
 import 'core/network/api_client.dart';
+import 'core/network/paystack_service.dart';
 import 'core/providers/appointment_provider.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/department_provider.dart';
@@ -56,6 +57,9 @@ Future<void> main() async {
         ),
         ProxyProvider<ApiClient, PrescriptionRepository>(
           update: (_, api, __) => PrescriptionRepository(api),
+        ),
+        ProxyProvider<ApiClient, PaystackService>(
+          update: (_, api, __) => PaystackService(api),
         ),
 
         // 3. Auth State Provider

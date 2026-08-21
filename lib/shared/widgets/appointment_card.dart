@@ -251,8 +251,9 @@ class _AppointmentCardState extends State<AppointmentCard> {
       final authProvider = context.read<AuthProvider>();
       final email = authProvider.patient?.email ?? 'patient@ahuike.org';
       final uniqueRef = '${appointment.id}_${DateTime.now().millisecondsSinceEpoch}';
+      final paystackService = context.read<PaystackService>();
       
-      final paystackData = await PaystackService.initializePayment(
+      final paystackData = await paystackService.initializePayment(
         email: email,
         amountInKobo: appointment.consultationFee * 100,
         reference: uniqueRef, // Use unique reference to avoid duplicate error
@@ -283,7 +284,7 @@ class _AppointmentCardState extends State<AppointmentCard> {
       for (int i = 0; i < 60; i++) {
         await Future.delayed(const Duration(seconds: 5));
         if (!mounted) break;
-        isSuccess = await PaystackService.verifyPayment(uniqueRef);
+        isSuccess = await paystackService.verifyPayment(uniqueRef);
         if (isSuccess) break;
       }
 

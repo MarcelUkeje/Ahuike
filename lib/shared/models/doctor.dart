@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 class Doctor {
   final String id;
   final String name;
@@ -84,3 +86,14 @@ class AppointmentSlot {
     );
   }
 }
+
+extension DoctorImageProvider on Doctor {
+  ImageProvider? get imageProvider {
+    if (imageUrl == null || imageUrl!.isEmpty) return null;
+    if (imageUrl!.startsWith('http')) {
+      return NetworkImage(imageUrl!);
+    }
+    return AssetImage(imageUrl!);
+  }
+}
+

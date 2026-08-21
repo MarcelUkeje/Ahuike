@@ -1,57 +1,55 @@
-import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
+import 'api_client.dart';
 
+/// Handles Paystack payment operations by proxying through the Ahuike backend.
+///
+/// The Paystack *secret* key lives only in the backend environment.
+/// This service uses the shared [ApiClient] (which attaches the patient's JWT)
+/// to call the backend's /api/v1/payments endpoints.
 class PaystackService {
-  static String get _secretKey {
-    final key = dotenv.env['PAYSTACK_SECRET_KEY'];
+  final ApiClient _client;
+
+  PaystackService(this._client);
+
+  /// Returns the Paystack public key from .env (safe to expose — not a secret).
+  static String get publicKey {
+    final key = dotenv.env['PAYSTACK_PUBLIC_KEY'];
     if (key == null || key.isEmpty) {
-      throw Exception('PAYSTACK_SECRET_KEY not found in .env file. Please add your test key.');
+      throw Exception('PAYSTACK_PUBLIC_KEY not found in .env file.');
     }
     return key;
   }
 
-  static Future<Map<String, dynamic>> initializePayment({
+  /// Initialize a payment via the backend.
+  ///
+  /// Returns a map containing at minimum:
+  ///   - `authorization_url` — open this URL in the browser
+  ///   - `reference`         — store this for verification
+  Future<Map<String, dynamic>> initializePayment({
     required String email,
     required int amountInKobo,
     required String reference,
   }) async {
-    final response = await http.post(
-      Uri.parse('https://api.paystack.co/transaction/initialize'),
-      headers: {
-        'Authorization': 'Bearer $_secretKey',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
+    final response = await _client.post(
+      '/payments/initialize',
+      body: {
         'email': email,
-        'amount': amountInKobo,
+        'amountInKobo': amountInKobo,
         'reference': reference,
-        'channels': ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'],
-      }),
+      },
     );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['data']; // contains authorization_url, access_code, reference
-    } else {
-      throw Exception('Paystack init failed: ${response.body}');
-    }
+    return Map<String, dynamic>.from(response.data as Map);
   }
 
-  static Future<bool> verifyPayment(String reference) async {
+  /// Verify a payment via the backend.
+  ///
+  /// Returns `true` if Paystack reports the transaction as successful.
+  Future<bool> verifyPayment(String reference) async {
     try {
-      final response = await http.get(
-        Uri.parse('https://api.paystack.co/transaction/verify/$reference'),
-        headers: {
-          'Authorization': 'Bearer $_secretKey',
-        },
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['data']['status'] == 'success';
-      }
-      return false;
-    } catch (e) {
+      final response = await _client.get('/payments/verify/$reference');
+      final data = response.data as Map<String, dynamic>;
+      return data['success'] == true;
+    } catch (_) {
       return false;
     }
   }
