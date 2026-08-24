@@ -47,8 +47,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Register new patient
-  Future<bool> register({
+  /// Register new patient (returns userId on success, null on failure)
+  Future<String?> register({
     required String name,
     required String email,
     required String password,
@@ -58,10 +58,37 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await _authRepository.register(
+      final userId = await _authRepository.register(
         name: name,
         email: email,
         password: password,
+      );
+      _status = AuthStatus.unauthenticated;
+      notifyListeners();
+      return userId;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _status = AuthStatus.unauthenticated;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// Verify OTP and log in
+  Future<bool> verifyOtp({
+    required String userId,
+    required String code,
+    required String name,
+  }) async {
+    _status = AuthStatus.authenticating;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final result = await _authRepository.verifyOtp(
+        userId: userId,
+        code: code,
+        name: name,
       );
 
       await _apiClient.setAuthToken(result.token);

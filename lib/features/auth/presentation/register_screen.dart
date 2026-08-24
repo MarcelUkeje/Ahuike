@@ -5,6 +5,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../shared/widgets/basil_icon.dart';
+import 'verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -36,16 +37,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
     FocusScope.of(context).unfocus();
 
     final authProvider = context.read<AuthProvider>();
-    final success = await authProvider.register(
-      name: _nameController.text.trim(),
+    final name = _nameController.text.trim();
+    final userId = await authProvider.register(
+      name: name,
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
 
     if (!mounted) return;
-    if (success) {
-      // Pop back to root (main.dart rebuilds AppShell on AuthStatus.authenticated)
-      Navigator.of(context).popUntil((route) => route.isFirst);
+    if (userId != null) {
+      // Navigate to VerificationScreen
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => VerificationScreen(
+            userId: userId,
+            name: name,
+          ),
+        ),
+      );
     } else if (authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

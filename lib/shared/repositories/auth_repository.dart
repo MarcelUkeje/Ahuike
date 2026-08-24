@@ -16,10 +16,16 @@ class AuthResult {
 }
 
 abstract class AuthRepository {
-  Future<AuthResult> register({
+  Future<String> register({
     required String name,
     required String email,
     required String password,
+  });
+
+  Future<AuthResult> verifyOtp({
+    required String userId,
+    required String code,
+    required String name,
   });
 
   Future<AuthResult> login({
@@ -36,7 +42,7 @@ class RemoteAuthRepository implements AuthRepository {
   RemoteAuthRepository({required this.apiClient});
 
   @override
-  Future<AuthResult> register({
+  Future<String> register({
     required String name,
     required String email,
     required String password,
@@ -44,6 +50,24 @@ class RemoteAuthRepository implements AuthRepository {
     final response = await apiClient.post(
       '/auth/register',
       body: {'name': name, 'email': email, 'password': password},
+    );
+    final data = response.data as Map<String, dynamic>;
+    return data['userId'] as String;
+  }
+
+  @override
+  Future<AuthResult> verifyOtp({
+    required String userId,
+    required String code,
+    required String name,
+  }) async {
+    final response = await apiClient.post(
+      '/auth/verify-otp',
+      body: {
+        'userId': userId,
+        'code': code,
+        'name': name,
+      },
     );
     return AuthResult.fromJson(response.data as Map<String, dynamic>);
   }
