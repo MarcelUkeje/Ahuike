@@ -8,6 +8,8 @@ import 'basil_icon.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import '../../core/network/paystack_service.dart';
+import 'dart:async';
+import '../../core/network/notification_helper.dart';
 import '../../core/providers/appointment_provider.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/doctor_provider.dart';
@@ -260,7 +262,14 @@ class _AppointmentCardState extends State<AppointmentCard> {
       );
 
       final url = Uri.parse(paystackData['authorization_url']);
+      
+      await NotificationHelper.init();
+      final timer = Timer(const Duration(minutes: 9), () {
+        NotificationHelper.showPaymentWarning();
+      });
+
       await launchUrl(url, mode: LaunchMode.externalApplication);
+      timer.cancel();
 
       if (!mounted) return;
       Navigator.of(context).pop(); // Close initializing dialog

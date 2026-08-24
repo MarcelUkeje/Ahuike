@@ -10,6 +10,8 @@ import '../../../shared/widgets/app_progress_animation.dart';
 import '../../../shared/widgets/app_animation.dart';
 import '../../../shared/widgets/basil_icon.dart';
 import '../../../core/network/paystack_service.dart';
+import 'dart:async';
+import '../../../core/network/notification_helper.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../shared/models/doctor.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -125,7 +127,18 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         );
 
         final url = Uri.parse(paystackData['authorization_url']);
+        
+        // Initialize notifications
+        await NotificationHelper.init();
+        
+        // Start 9-minute timer
+        final timer = Timer(const Duration(minutes: 9), () {
+          NotificationHelper.showPaymentWarning();
+        });
+
         await launchUrl(url, mode: LaunchMode.externalApplication);
+        timer.cancel(); // Cancel timer if they return early
+        
 
         if (!mounted) return;
         Navigator.of(context).pop(); // Close initializing dialog
