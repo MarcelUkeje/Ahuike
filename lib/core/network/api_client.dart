@@ -117,22 +117,35 @@ class ApiClient {
   }
 
   ApiResponse _handleResponse(http.Response response) {
-    final dynamic decoded = jsonDecode(response.body);
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final meta = decoded['meta'] as Map<String, dynamic>?;
-      return ApiResponse(data: decoded['data'] ?? decoded, meta: meta);
-    }
-    
-    String message = 'Unknown API Error';
-    if (decoded is Map) {
-      if (decoded['message'] != null) {
-        message = decoded['message'].toString();
-      } else if (decoded['error'] is Map && decoded['error']['message'] != null) {
-        message = decoded['error']['message'].toString();
-      } else if (decoded['error'] != null) {
-        message = decoded['error'].toString();
+      if (response.body.isEmpty) return const ApiResponse(data: null);
+      
+      try {
+        final dynamic decoded = jsonDecode(response.body);
+        final meta = decoded is Map ? decoded['meta'] as Map<String, dynamic>? : null;
+        return ApiResponse(data: decoded is Map ? (decoded['data'] ?? decoded) : decoded, meta: meta);
+      } catch (_) {
+        return ApiResponse(data: response.body);
       }
     }
-    throw Exception(message);
+    
+    // Attempt to decode error message from JSON, fallback to status text
+    try {
+      final dynamic decoded = jsonDecode(response.body);
+      String message = 'Unknown API Error';
+      if (decoded is Map) {
+        if (decoded['message'] != null) {
+          message = decoded['message'].toString();
+        } else if (decoded['error'] is Map && decoded['error']['message'] != null) {
+          message = decoded['error']['message'].toString();
+        } else if (decoded['error'] != null) {
+          message = decoded['error'].toString();
+        }
+      }
+      throw Exception(message);
+    } catch (_) {
+      // If it's not JSON (e.g. 404 HTML page or 502 Bad Gateway)
+      throw Exception('Server returned ${response.statusCode}: ${response.reasonPhrase}');
+    }
   }
 }
