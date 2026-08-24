@@ -13,6 +13,8 @@ import '../../core/network/notification_helper.dart';
 import '../../core/providers/appointment_provider.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/providers/doctor_provider.dart';
+import '../repositories/doctor_repository.dart';
+import '../models/doctor.dart';
 
 class AppointmentCard extends StatefulWidget {
   const AppointmentCard({super.key, required this.appointment});
@@ -147,13 +149,30 @@ class _AppointmentCardState extends State<AppointmentCard> {
     return DateFormat('E MMM d y h:mm:ss a').format(date);
   }
 
+  Doctor? _cachedDoctor;
+
+  @override
+  void initState() {
+    super.initState();
+    // Try to load doctor eagerly
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final docs = context.read<DoctorProvider>().doctors;
+      final doc = docs.where((d) => d.id == widget.appointment.doctorId).firstOrNull;
+      if (doc != null) {
+        if (mounted) setState(() => _cachedDoctor = doc);
+      } else {
+        context.read<DoctorRepository>().getDoctorById(widget.appointment.doctorId).then((loadedDoc) {
+          if (mounted) setState(() => _cachedDoctor = loadedDoc);
+        }).catchError((_) {});
+      }
+    });
+  }
+
   void _showDetailsDialog(BuildContext context) {
     final appointment = widget.appointment;
     final isPending = appointment.status.toLowerCase() == 'pending';
     
-    // Look up the doctor to show their details
-    final doctors = context.read<DoctorProvider>().doctors;
-    final doctorInfo = doctors.where((d) => d.id == appointment.doctorId).firstOrNull;
+    final doctorInfo = _cachedDoctor;
 
     showDialog(
       context: context,
@@ -170,6 +189,10 @@ class _AppointmentCardState extends State<AppointmentCard> {
               Text('Doctor:', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
               Text('Dr. ${doctorInfo.name}'),
               Text(doctorInfo.specialty, style: const TextStyle(fontSize: 12, color: AppColors.primary)),
+              const SizedBox(height: 12),
+            ] else ...[
+              Text('Doctor ID:', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+              Text(appointment.doctorId),
               const SizedBox(height: 12),
             ],
             Text('Reason for Visit:', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
@@ -256,8 +279,8 @@ class _AppointmentCardState extends State<AppointmentCard> {
             style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
             onPressed: () {
               Navigator.of(ctx).pop();
-              context.read<AppointmentProvider>().deleteAppointment(id).then((_) {
-                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Appointment completed and removed.')));
+              context.read<AppointmentProvider>().completeAppointment(id).then((_) {
+                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Appointment marked as completed.')));
               }).catchError((e) {
                 if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to complete appointment.')));
               });
@@ -304,7 +327,7 @@ class _AppointmentCardState extends State<AppointmentCard> {
       });
 
       await launchUrl(url, mode: LaunchMode.externalApplication);
-      timer.cancel();
+      // timer.cancel() removed to allow the 9-minute warning to fire
 
       if (!mounted) return;
       Navigator.of(context).pop(); // Close initializing dialog
@@ -336,6 +359,7 @@ class _AppointmentCardState extends State<AppointmentCard> {
       Navigator.of(context).pop(); // Close waiting dialog
 
       if (isSuccess) {
+        timer.cancel(); // Cancel warning since they paid successfully
         await context.read<AppointmentProvider>().confirmAppointment(appointment.id);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

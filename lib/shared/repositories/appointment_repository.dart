@@ -61,6 +61,10 @@ class AppointmentRepository {
     await _apiClient.post('/appointments/$id/confirm', body: {});
   }
 
+  Future<void> completeAppointment(String id) async {
+    await _apiClient.post('/appointments/$id/complete', body: {});
+  }
+
   Future<void> deleteAppointment(String id) async {
     await _apiClient.delete('/appointments/$id');
   }

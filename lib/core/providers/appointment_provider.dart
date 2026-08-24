@@ -139,6 +139,34 @@ class AppointmentProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> completeAppointment(String appointmentId) async {
+    try {
+      await _repository.completeAppointment(appointmentId);
+      
+      final index = _appointments.indexWhere((a) => a.id == appointmentId);
+      if (index != -1) {
+        final current = _appointments[index];
+        _appointments[index] = Appointment(
+          id: current.id,
+          patientId: current.patientId,
+          doctorId: current.doctorId,
+          departmentId: current.departmentId,
+          slotId: current.slotId,
+          reasonForVisit: current.reasonForVisit,
+          consultationFee: current.consultationFee,
+          status: 'completed',
+          notes: current.notes,
+          createdAt: current.createdAt,
+          updatedAt: DateTime.now().toUtc().toIso8601String(),
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Failed to complete appointment: $e");
+      rethrow;
+    }
+  }
+
   Future<void> deleteAppointment(String appointmentId) async {
     try {
       await _repository.deleteAppointment(appointmentId);

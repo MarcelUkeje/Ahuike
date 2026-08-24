@@ -137,7 +137,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         });
 
         await launchUrl(url, mode: LaunchMode.externalApplication);
-        timer.cancel(); // Cancel timer if they return early
+        // timer.cancel() removed to allow the 9-minute warning to fire
         
 
         if (!mounted) return;
@@ -174,6 +174,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
         Navigator.of(context).pop(); // Close waiting dialog
 
         if (isSuccess) {
+          timer.cancel(); // Cancel warning since they paid successfully
           await appointmentProvider.confirmAppointment(appointment.id);
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
