@@ -64,6 +64,9 @@ node_modules/
 key.properties
 **/service-account*.json
 
+# Local Android configuration
+/android/local.properties
+
 # Build artifacts (too large / rebuildable — never commit)
 *.apk
 *.aab
