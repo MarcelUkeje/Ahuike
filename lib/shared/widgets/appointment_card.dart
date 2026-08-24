@@ -183,14 +183,24 @@ class _AppointmentCardState extends State<AppointmentCard> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _confirmCompleteAppointment(context, appointment.id);
-            },
-            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-            child: const Text('Complete Appointment'),
-          ),
+          if (isPending)
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _confirmCancelAppointment(context, appointment.id);
+              },
+              style: TextButton.styleFrom(foregroundColor: AppColors.error),
+              child: const Text('Cancel Appointment'),
+            )
+          else
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _confirmCompleteAppointment(context, appointment.id);
+              },
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+              child: const Text('Complete Appointment'),
+            ),
           const Spacer(),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -204,6 +214,31 @@ class _AppointmentCardState extends State<AppointmentCard> {
               },
               child: const Text('Pay Now'),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmCancelAppointment(BuildContext context, String id) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cancel Appointment'),
+        content: const Text('Are you sure you want to cancel this appointment?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('No')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.read<AppointmentProvider>().deleteAppointment(id).then((_) {
+                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Appointment cancelled.')));
+              }).catchError((e) {
+                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to cancel appointment.')));
+              });
+            },
+            child: const Text('Yes, Cancel'),
+          ),
         ],
       ),
     );
