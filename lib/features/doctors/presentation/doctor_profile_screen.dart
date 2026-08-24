@@ -15,6 +15,7 @@ import '../../../core/network/notification_helper.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../shared/models/doctor.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
   final String doctorId;
@@ -27,6 +28,23 @@ class DoctorProfileScreen extends StatefulWidget {
 
 class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
   String? _selectedSlotId;
+
+  String _formatSlot(String slotDate, String startTime) {
+    try {
+      final datePart = slotDate.split('T')[0];
+      
+      final timeParts = startTime.split(':');
+      final hours = int.parse(timeParts[0]);
+      final minutes = int.parse(timeParts[1]);
+      
+      final tempDate = DateTime(2000, 1, 1, hours, minutes);
+      final formattedTime = DateFormat('h:mm a').format(tempDate);
+      
+      return '$datePart • $formattedTime';
+    } catch (_) {
+      return '$slotDate $startTime';
+    }
+  }
 
   @override
   void initState() {
@@ -396,7 +414,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                                       ),
                                     ),
                                     child: Text(
-                                      '${slot.slotDate} ${slot.startTime}',
+                                      _formatSlot(slot.slotDate, slot.startTime),
                                       style: TextStyle(
                                         color:
                                             isSelected

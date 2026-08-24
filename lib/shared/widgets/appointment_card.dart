@@ -71,10 +71,15 @@ class _AppointmentCardState extends State<AppointmentCard> {
                         ),
                       ),
                     ),
-                    Text(
-                      _formatSlotDateTime(appointment.slotDate, appointment.startTime) ??
-                          'Booking ID: ${appointment.id.substring(0, 8)}...',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        _formatSlotDateTime(appointment.slotDate, appointment.startTime) ??
+                            'Booking ID: ${appointment.id.substring(0, 8)}...',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
                   ],
                 ),
