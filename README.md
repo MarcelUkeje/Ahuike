@@ -4,7 +4,7 @@
 > 
 > Due to strict anti-spam firewalls on the free-tier backend hosting (Render), automated emails (like OTPs for registration and appointment receipts) cannot be sent out. 
 > 
-> **To test the registration and login flow, please enter the universal bypass OTP code: `000000`** when prompted. This will automatically verify your account and log you in.
+> **To test the registration and login flow, please enter the universal bypass OTP code: `111111`** when prompted. This will automatically verify your account and log you in.
 
 Ahuike is a Flutter hospital appointment booking application for a fictitious Nigerian hospital.
 
