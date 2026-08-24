@@ -72,9 +72,8 @@ class _AppointmentCardState extends State<AppointmentCard> {
                       ),
                     ),
                     Text(
-                      appointment.slotDate != null && appointment.startTime != null 
-                          ? '${appointment.slotDate}  •  ${appointment.startTime}'
-                          : 'Booking ID: ${appointment.id.substring(0, 8)}...',
+                      _formatSlotDateTime(appointment.slotDate, appointment.startTime) ??
+                          'Booking ID: ${appointment.id.substring(0, 8)}...',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
@@ -142,6 +141,24 @@ class _AppointmentCardState extends State<AppointmentCard> {
     );
   }
 
+  String? _formatSlotDateTime(String? slotDate, String? startTime) {
+    if (slotDate == null || startTime == null) return null;
+    try {
+      final datePart = slotDate.split('T')[0];
+      
+      final timeParts = startTime.split(':');
+      final hours = int.parse(timeParts[0]);
+      final minutes = int.parse(timeParts[1]);
+      
+      final tempDate = DateTime(2000, 1, 1, hours, minutes);
+      final formattedTime = DateFormat('h:mm a').format(tempDate);
+      
+      return '$datePart • $formattedTime';
+    } catch (_) {
+      return '$slotDate at $startTime';
+    }
+  }
+
   String _formatDate(String isoString) {
     final date = DateTime.tryParse(isoString)?.toLocal();
     if (date == null) {
@@ -189,7 +206,7 @@ class _AppointmentCardState extends State<AppointmentCard> {
             const SizedBox(height: 12),
             if (appointment.slotDate != null) ...[
               Text('Appointment Time:', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
-              Text('${appointment.slotDate} at ${appointment.startTime}'),
+              Text(_formatSlotDateTime(appointment.slotDate, appointment.startTime) ?? ''),
               const SizedBox(height: 12),
             ],
             if (doctorInfo != null) ...[
