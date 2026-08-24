@@ -235,37 +235,43 @@ class _AppointmentCardState extends State<AppointmentCard> {
           ],
         ),
         actions: [
-          if (isPending)
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                _confirmCancelAppointment(context, appointment.id);
-              },
-              style: TextButton.styleFrom(foregroundColor: AppColors.error),
-              child: const Text('Cancel Appointment'),
-            )
-          else
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                _confirmCompleteAppointment(context, appointment.id);
-              },
-              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-              child: const Text('Complete Appointment'),
-            ),
-          const Spacer(),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Close'),
+          Row(
+            children: [
+              if (isPending)
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _confirmCancelAppointment(context, appointment.id);
+                  },
+                  style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                  child: const Text('Cancel Appointment'),
+                )
+              else
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _confirmCompleteAppointment(context, appointment.id);
+                  },
+                  style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+                  child: const Text('Complete Appointment'),
+                ),
+              const Spacer(),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Close'),
+              ),
+              if (isPending) ...[
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _initiatePayment(context);
+                  },
+                  child: const Text('Pay Now'),
+                ),
+              ],
+            ],
           ),
-          if (isPending)
-            FilledButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                _initiatePayment(context);
-              },
-              child: const Text('Pay Now'),
-            ),
         ],
       ),
     );
