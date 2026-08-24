@@ -1,3 +1,4 @@
+import 'dart:math';
 import '../../core/network/api_client.dart';
 import '../models/appointment.dart';
 import '../models/page_meta.dart';
@@ -39,12 +40,20 @@ class AppointmentRepository {
     required String slotId,
     required String reasonForVisit,
   }) async {
-    final response = await _apiClient.post('/appointments', body: {
-      'doctorId': doctorId,
-      'departmentId': departmentId,
-      'slotId': slotId,
-      'reasonForVisit': reasonForVisit,
-    });
+    final idempotencyKey = '${DateTime.now().millisecondsSinceEpoch}-${Random().nextInt(1000000)}';
+    
+    final response = await _apiClient.post(
+      '/appointments', 
+      body: {
+        'doctorId': doctorId,
+        'departmentId': departmentId,
+        'slotId': slotId,
+        'reasonForVisit': reasonForVisit,
+      },
+      headers: {
+        'Idempotency-Key': idempotencyKey,
+      },
+    );
     return Appointment.fromJson(response.data as Map<String, dynamic>);
   }
 
