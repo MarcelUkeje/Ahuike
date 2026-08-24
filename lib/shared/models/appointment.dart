@@ -10,6 +10,8 @@ class Appointment {
   final String? notes;
   final String createdAt;
   final String updatedAt;
+  final String? slotDate;
+  final String? startTime;
 
   Appointment({
     required this.id,
@@ -23,6 +25,8 @@ class Appointment {
     this.notes,
     required this.createdAt,
     required this.updatedAt,
+    this.slotDate,
+    this.startTime,
   });
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
@@ -38,6 +42,8 @@ class Appointment {
       notes: json['notes'] as String?,
       createdAt: json['createdAt'] as String,
       updatedAt: json['updatedAt'] as String,
+      slotDate: json['slotDate'] as String?,
+      startTime: json['startTime'] as String?,
     );
   }
 }

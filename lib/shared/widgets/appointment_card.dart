@@ -72,7 +72,9 @@ class _AppointmentCardState extends State<AppointmentCard> {
                       ),
                     ),
                     Text(
-                      'Booking ID: ${appointment.id.substring(0, 8)}...',
+                      appointment.slotDate != null && appointment.startTime != null 
+                          ? '${appointment.slotDate}  •  ${appointment.startTime}'
+                          : 'Booking ID: ${appointment.id.substring(0, 8)}...',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
@@ -185,6 +187,11 @@ class _AppointmentCardState extends State<AppointmentCard> {
             Text('Booking ID:', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
             Text(appointment.id),
             const SizedBox(height: 12),
+            if (appointment.slotDate != null) ...[
+              Text('Appointment Time:', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+              Text('${appointment.slotDate} at ${appointment.startTime}'),
+              const SizedBox(height: 12),
+            ],
             if (doctorInfo != null) ...[
               Text('Doctor:', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
               Text('Dr. ${doctorInfo.name}'),
